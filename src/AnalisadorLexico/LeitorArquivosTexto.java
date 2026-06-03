@@ -4,100 +4,126 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
-public class LeitorArquivosTexto {
-	private final static int tamanho_buffer=20;
-	int[] bufferDeLeitura;
-	int ponteiro;
-	int bufferAtual;
-	int inicioLexema;
-	private String lexema;
-	InputStream is;
+
+public class LeitorArquivosTexto implements AutoCloseable{
+	private final static int TAMANHO_BUFFER=1024;
+	private int[] bufferDeLeitura;
+	private int ponteiro;
+	private int inicioLexema;
+	private StringBuilder lexema;
+	private InputStream is;
+	private int linha;
+	private int coluna;
+	private int colunaAnterior;
 	
-	public void leitorArquivoDeTexto(String arquivo) {
-		try {
-			is= new FileInputStream(arquivo);
-			inicializarBuffer();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	private void inicializarBuffer(){
-		bufferAtual=2;
-		inicioLexema=0;
-		lexema="";
-		bufferDeLeitura= new int [tamanho_buffer*2];
-		ponteiro= 0;
-		recarregarBuffer1();
-	}
-	private void recarregarBuffer1() {
-		if(bufferAtual==2) {
-			bufferAtual=1;
-		}
-		for(int i=0; i<tamanho_buffer; i++) {
-			try {
-				bufferDeLeitura[i]= is.read();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			if(bufferDeLeitura[i]==-1) {
-				break;
-			}
-		}
+	public  LeitorArquivosTexto(String arquivo) throws FileNotFoundException {
 		
+			this.is= new FileInputStream(arquivo);
+			this.bufferDeLeitura = new int[TAMANHO_BUFFER *2];
+			this.lexema= new StringBuilder();
+			this.ponteiro=0;
+			this.inicioLexema=0;
+			this.linha=1;
+			this.coluna=1;
+			
+			recarregarBloco(0);
 	}
-	private void recarregarBuffer2() {
-		if(bufferAtual==1) {
-			bufferAtual=2;
-		}
-		for(int i=tamanho_buffer; i<tamanho_buffer*2; i++) {
-			try {
-				bufferDeLeitura[i]= is.read();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			if(bufferDeLeitura[i]==-1) {
-				break;
-			}
-		}
+
+	private void recarregarBloco(int bloco) {
+		int indiceInicial= bloco*TAMANHO_BUFFER;
+		int indiceFinal= indiceInicial+TAMANHO_BUFFER;
 		
+		for(int i= indiceInicial; i<indiceFinal;i++) {
+			try {
+				int caractere= is.read();
+				bufferDeLeitura[i]=caractere;
+				
+				if(caractere==-1) {
+					Arrays.fill(bufferDeLeitura, i, indiceFinal, -1);
+					break;
+				}
+				
+			} catch (IOException e) {
+				throw new RuntimeException("Erro ao ler o código fonte.", e);
+			}
+		}
 	}
 	private void incrementarPonteiro(){
 		ponteiro++;
-		if(ponteiro== tamanho_buffer) {
-			recarregarBuffer2();
-		}else if(ponteiro==tamanho_buffer*2) {
-			recarregarBuffer1();
+		if(ponteiro== TAMANHO_BUFFER) {
+			recarregarBloco(1);
+		}else if(ponteiro==TAMANHO_BUFFER*2) {
+			recarregarBloco(0);
 			ponteiro=0;
 		}
 	}
 	private int lerCaracterDoBuffer(){
 		int ret= bufferDeLeitura[ponteiro];
-		System.out.println(this);
 		incrementarPonteiro();
 		return ret;
 	}
 	public int lerProximoCaractere() {
 		int c= lerCaracterDoBuffer();
-		lexema+=(char)c;
+		if(c==-1) {
+			return -1;
+		}
+		lexema.append((char)c);
+		colunaAnterior=coluna;
+		if(c=='\n') {
+			linha++;
+			coluna=1;
+		}else {
+			coluna++;
+		}
 		return c;
 	}
 	public void retroceder() {
-		ponteiro--;
-		lexema=lexema.substring(0, lexema.length()-1);
-		if(ponteiro<0) {
-			ponteiro= tamanho_buffer*2-1;
+		if(lexema.length()==0) {
+			return;
 		}
+		ponteiro--;
+		char caractereRemovido = lexema.charAt(lexema.length() - 1);
+        lexema.deleteCharAt(lexema.length() - 1);
+		if(ponteiro<0) {
+			ponteiro= (TAMANHO_BUFFER*2)-1;
+		}
+		if (caractereRemovido == '\n') {
+            linha--;
+            coluna = colunaAnterior;
+        } else {
+            coluna--;
+        }
 	}
 	public void zera() {
 		ponteiro=inicioLexema;
-		lexema="";
+		lexema.setLength(0);
 	}
 	public void confirmar() {
 		inicioLexema=ponteiro;
-		lexema="";
+		lexema.setLength(0);;
 	}
 	public String getLexema() {
-		return lexema;
+		return lexema.toString();
+	}
+
+	public int getLinha() {
+		return linha;
+	}
+
+	public int getColuna() {
+		return coluna;
+	}
+
+	@Override
+	public void close() throws Exception {
+		if (is != null) {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }		
 	}
 }

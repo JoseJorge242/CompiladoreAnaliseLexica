@@ -1,0 +1,6 @@
+if (idade >= 18) {
+    status = "Liberado";
+    contador++;
+} else {
+    retorno = x - y;
+}

@@ -2,169 +2,196 @@ package AnalisadorLexico;
 
 public class AnalisadorLexico {
 
-	LeitorArquivosTexto latd;
+    private final LeitorArquivosTexto latd;
 
-	public AnalisadorLexico(LeitorArquivosTexto latd) {
-		super();
-		this.latd = latd;
-	}
-	
-	public Token proximoToken() {
-		int caracterlido= -1;
-		
-		
-		while((caracterlido= latd.lerProximoCaractere())!=-1) {
-			char c= (char)caracterlido;
-			
-			if(c== ' '|| c=='\n' || c=='\r' || c=='\t') {
-				continue;
-			} else if(c == ':' || c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}') {
-				return delimitador(c);
-			}else if(c == '*' || c == '/' || c == '%' || c == '+' || c == '-') {
-				return operadorAritmetico(c);
-			}else if(c == '<' || c == '>' || c == '=' || c == '!' || c == '&' || c == '|') {
-				return operadorRelacional(c);
-			}else if(Character.isDigit(c)) {
-				return caracteresNumericos(c);
-			}else if(Character.isLetter(c)|| c=='_') {
-				return identificador(c);
-			}
-			return new Token(TipoToken.ERROR, Character.toString(c));
+    public AnalisadorLexico(LeitorArquivosTexto latd) {
+        this.latd = latd;
+    }
+    
+    public Token proximoToken() {
+        int caracterLido;
+        
+        while ((caracterLido = latd.lerProximoCaractere()) != -1) {
+            char c = (char) caracterLido;
+            
+            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+                latd.confirmar(); 
+                continue;
+            }
+            
+            int linhaToken = latd.getLinha();
+            int colunaToken = latd.getColuna() - 1;
+            
+            if (c == ':' || c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}') {
+                return delimitador(c, linhaToken, colunaToken);
+            }
+            if (c == '*' || c == '/' || c == '%' || c == '+' || c == '-') {
+                return operadorAritmetico(c, linhaToken, colunaToken);
+            }
+            if (c == '<' || c == '>' || c == '=' || c == '!' || c == '&' || c == '|') {
+                return operadorRelacionalOuLogico(c, linhaToken, colunaToken);
+            }
+            if (Character.isDigit(c)) {
+                return caracteresNumericos(linhaToken, colunaToken);
+            }
+            if (Character.isLetter(c) || c == '_') {
+                return identificador(linhaToken, colunaToken);
+            }
+            
+            latd.confirmar();
+            return new Token(TipoToken.ERROR, Character.toString(c), linhaToken, colunaToken);
+        }
+                return new Token(TipoToken.EOF, "EOF", latd.getLinha(), latd.getColuna());
+    }
+    
+    private Token identificador(int linha, int coluna) {
+        int proximo;
+        while ((proximo = latd.lerProximoCaractere()) != -1) {
+            char pc = (char) proximo;
+            if (!(Character.isLetterOrDigit(pc) || pc == '_')) {
+                latd.retroceder();
+                break;
+            }
+        }
+        
+        String texto = latd.getLexema();
+        latd.confirmar(); 
+        
+        switch (texto) {
+            case "if":       return new Token(TipoToken.IF, texto, linha, coluna);
+            case "else":     return new Token(TipoToken.ELSE, texto, linha, coluna);
+            case "while":    return new Token(TipoToken.WHILE, texto, linha, coluna);
+            case "for":      return new Token(TipoToken.FOR, texto, linha, coluna);
+            case "return":   return new Token(TipoToken.RETURN, texto, linha, coluna);
+            case "do":       return new Token(TipoToken.DO, texto, linha, coluna);
+            case "break":    return new Token(TipoToken.BREAK, texto, linha, coluna);
+            case "continue": return new Token(TipoToken.CONTINUE, texto, linha, coluna);
+            case "int":      return new Token(TipoToken.INT, texto, linha, coluna);
+            case "float":    return new Token(TipoToken.FLOAT, texto, linha, coluna);
+            case "string":   return new Token(TipoToken.STRING, texto, linha, coluna);
+            case "boolean":  return new Token(TipoToken.BOOLEAN, texto, linha, coluna);
+            case "true":     return new Token(TipoToken.TRUE, texto, linha, coluna);
+            case "false":    return new Token(TipoToken.FALSE, texto, linha, coluna);
+            default:         return new Token(TipoToken.IDENTIFIER, texto, linha, coluna);
+        }        
+    }
 
-		}
-		return new Token(TipoToken.EOF, "EOF");
-	}
-	private Token identificador(char c) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(c);
-		
-		int proximo;
-		while ((proximo = latd.lerProximoCaractere()) != -1) {
-			char pc = (char) proximo;
-			if (Character.isLetterOrDigit(pc) || pc == '_') {
-				sb.append(pc);
-			} else {
-				latd.retroceder();
-				break;
-			}
-		}
-		
-		String texto = sb.toString();
-				switch (texto) {
-			case "if":       return new Token(TipoToken.IF, texto);
-			case "else":     return new Token(TipoToken.ELSE, texto);
-			case "while":    return new Token(TipoToken.WHILE, texto);
-			case "for":      return new Token(TipoToken.FOR, texto);
-			case "return":   return new Token(TipoToken.RETURN, texto);
-			case "do":       return new Token(TipoToken.DO, texto);
-			case "break":    return new Token(TipoToken.BREAK, texto);
-			case "continue": return new Token(TipoToken.CONTINUE, texto);
-			case "int":      return new Token(TipoToken.INT, texto);
-			case "float":    return new Token(TipoToken.FLOAT, texto);
-			case "string":   return new Token(TipoToken.STRING, texto);
-			case "boolean":  return new Token(TipoToken.BOOLEAN, texto);
-			case "true":     return new Token(TipoToken.TRUE, texto);
-			case "false":    return new Token(TipoToken.FALSE, texto);
-			default:         return new Token(TipoToken.IDENTIFIER, texto);
-		}		
-	}
+    private Token caracteresNumericos(int linha, int coluna) {
+        int proximo;
+        boolean ehFloat = false;
+        
+        while ((proximo = latd.lerProximoCaractere()) != -1) {
+            char pc = (char) proximo;
+            if (Character.isDigit(pc)) {
+                continue;
+            } else if (pc == '.' && !ehFloat) {
+                int lookahead = latd.lerProximoCaractere();
+                if (lookahead != -1 && Character.isDigit((char) lookahead)) {
+                    ehFloat = true;
+                } else {
+                    if (lookahead != -1) latd.retroceder();
+                    latd.retroceder();
+                    break;
+                }
+            } else {
+                latd.retroceder();
+                break;
+            }
+        }
+        
+        String texto = latd.getLexema();
+        latd.confirmar();
+        if (ehFloat) {
+            return new Token(TipoToken.FLOAT_LITERAL, texto, linha, coluna);
+        } else {
+            return new Token(TipoToken.INT_LITERAL, texto, linha, coluna);
+        }
+    }
 
-	private Token caracteresNumericos(char c) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(c);
-		
-		int proximo;
-		while ((proximo = latd.lerProximoCaractere()) != -1) {
-			char pc = (char) proximo;
-			if (Character.isDigit(pc)) {
-				sb.append(pc);
-			} else {
-				latd.retroceder();
-				break;
-			}
-		}
-		return new Token(TipoToken.INT_LITERAL, sb.toString());
-	}
+    private Token operadorAritmetico(char c, int linha, int coluna) {
+        if (c == '*') { latd.confirmar(); return new Token(TipoToken.MULT, "*", linha, coluna); }
+        if (c == '/') { latd.confirmar(); return new Token(TipoToken.DIV, "/", linha, coluna); }
+        if (c == '%') { latd.confirmar(); return new Token(TipoToken.MOD, "%", linha, coluna); }
+        
+        if (c == '+') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '+') { latd.confirmar(); return new Token(TipoToken.INCREMENT, "++", linha, coluna); }
+            if (proximo == '=') { latd.confirmar(); return new Token(TipoToken.ADD_ASSIGN, "+=", linha, coluna); }
+            
+            if (proximo != -1) latd.retroceder(); 
+            latd.confirmar();
+            return new Token(TipoToken.PLUS, "+", linha, coluna);
+        }
+        
+        if (c == '-') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '-') { latd.confirmar(); return new Token(TipoToken.DECREMENT, "--", linha, coluna); }
+            if (proximo == '=') { latd.confirmar(); return new Token(TipoToken.SUB_ASSIGN, "-=", linha, coluna); }
+            
+            if (proximo != -1) latd.retroceder();
+            latd.confirmar();
+            return new Token(TipoToken.MINUS, "-", linha, coluna);
+        }
+        return null;
+    }
+    
+    private Token delimitador(char c, int linha, int coluna) {
+        latd.confirmar();
+        switch (c) {
+            case ':': return new Token(TipoToken.COLON, ":", linha, coluna);
+            case ';': return new Token(TipoToken.SEMICOLON, ";", linha, coluna);
+            case ',': return new Token(TipoToken.COMMA, ",",  linha, coluna);
+            case '(': return new Token(TipoToken.LPAREN, "(", linha, coluna);
+            case ')': return new Token(TipoToken.RPAREN, ")", linha, coluna);
+            case '{': return new Token(TipoToken.LBRACE, "{", linha, coluna);
+            case '}': return new Token(TipoToken.RBRACE, "}", linha, coluna);
+            default: return null;
+        }
+    }
 
-	public Token operadorAritmetico(char c) {
-		 if(c=='*') {
-			return new Token(TipoToken.MULT, "*");
-		}else if(c=='/') {
-			return new Token(TipoToken.DIV, "/");
-		}else if(c=='%') {
-			return new Token(TipoToken.MOD, "%");
-		}
-		else if(c=='+') {
-			c=(char) latd.lerProximoCaractere();
-			if(c=='+') {
-				return new Token(TipoToken.INCREMET, "++");
-			}else if(c=='=') {
-				return new Token(TipoToken.ASSING, "+=");
-			}else {
-				latd.retroceder();
-				return new Token(TipoToken.PLUS, "+");	
-			}
-		}else if(c=='-') {
-			int proximo = latd.lerProximoCaractere();
-	        if ((char) proximo == '-') return new Token(TipoToken.DECREMENT, "--");
-	        if ((char) proximo == '=') return new Token(TipoToken.SUB_ASSING, "-=");
-	        latd.retroceder();
-	        return new Token(TipoToken.MINUS, "-");
-		}
-		return null;
-	}
-	
-	public Token delimitador(char c) {
-		if (c == ':') return new Token(TipoToken.COLON, ":");
-		if (c == ';') return new Token(TipoToken.SEMICOLON, ";");
-		if (c == ',') return new Token(TipoToken.COMMA, ",");
-		if (c == '(') return new Token(TipoToken.LPAREN, "(");
-		if (c == ')') return new Token(TipoToken.RPAREN, ")");
-		if (c == '{') return new Token(TipoToken.LBRACE, "{");
-		if (c == '}') return new Token(TipoToken.RBRACE, "}");
-		return null;
-	}
-	public Token operadorRelacional(char c) {
-
-		if(c=='<') {
-			c= (char) latd.lerProximoCaractere();
-			if(c== '=') {
-				return new Token(TipoToken.LESS_EQUALS, "<=");
-			}else {
-				latd.retroceder();
-				return new Token(TipoToken.LESS, "<");
-			}
-		}else if(c=='>') {
-			c= (char) latd.lerProximoCaractere();
-			if(c== '=') {
-				return new Token(TipoToken.GREATER_EQUALS, ">=");
-			}else {
-				latd.retroceder();
-				return new Token(TipoToken.GREATER, ">");
-			}
-		}else if (c == '=') {
-	        int proximo = latd.lerProximoCaractere();
-	        if ((char) proximo == '=') {
-	            return new Token(TipoToken.EQUAL, "==");
-	        }
-	        latd.retroceder(); 
-	        return new Token(TipoToken.ASSING, "=");
-		} else if (c == '!') {
-			int proximo = latd.lerProximoCaractere();
-			if ((char) proximo == '=') return new Token(TipoToken.NOT_EQUAL, "!=");
-			latd.retroceder();
-			return new Token(TipoToken.NOT, "!");
-		}else if (c == '&') {
-			int proximo = latd.lerProximoCaractere();
-			if ((char) proximo == '&') return new Token(TipoToken.AND, "&&");
-			latd.retroceder();
-			return new Token(TipoToken.ERROR, "&");
-		}else if (c == '|') {
-			int proximo = latd.lerProximoCaractere();
-			if ((char) proximo == '|') return new Token(TipoToken.OR, "||");
-			latd.retroceder();
-			return new Token(TipoToken.ERROR, "|");
-		}
-		return null;
-	}
+    private Token operadorRelacionalOuLogico(char c, int linha, int coluna) {
+        if (c == '<') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '=') { latd.confirmar(); return new Token(TipoToken.LESS_EQUALS, "<=", linha, coluna); }
+            if (proximo != -1) latd.retroceder();
+            latd.confirmar();
+            return new Token(TipoToken.LESS, "<", linha, coluna);
+        } 
+        if (c == '>') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '=') { latd.confirmar(); return new Token(TipoToken.GREATER_EQUALS, ">=", linha, coluna); }
+            if (proximo != -1) latd.retroceder();
+            latd.confirmar();
+            return new Token(TipoToken.GREATER, ">", linha, coluna);
+        } 
+        if (c == '=') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '=') { latd.confirmar(); return new Token(TipoToken.EQUAL, "==", linha, coluna); }
+            if (proximo != -1) latd.retroceder();
+            latd.confirmar(); 
+            return new Token(TipoToken.ASSIGN, "=", linha, coluna);
+        } 
+        if (c == '!') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '=') { latd.confirmar(); return new Token(TipoToken.NOT_EQUAL, "!=", linha, coluna); }
+            if (proximo != -1) latd.retroceder();
+            latd.confirmar();
+            return new Token(TipoToken.NOT, "!", linha, coluna);
+        }
+        if (c == '&') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '&') { latd.confirmar(); return new Token(TipoToken.AND, "&&", linha, coluna); }
+            if (proximo != -1) latd.retroceder();
+            latd.confirmar();
+            return new Token(TipoToken.ERROR, "&", linha, coluna);
+        }
+        if (c == '|') {
+            int proximo = latd.lerProximoCaractere();
+            if (proximo == '|') { latd.confirmar(); return new Token(TipoToken.OR, "||", linha, coluna); }
+            if (proximo != -1) latd.retroceder();
+            latd.confirmar();
+            return new Token(TipoToken.ERROR, "|", linha, coluna);
+        }
+        return null;
+    }
 }
