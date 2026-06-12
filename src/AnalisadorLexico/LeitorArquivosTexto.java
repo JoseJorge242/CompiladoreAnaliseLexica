@@ -29,6 +29,7 @@ public class LeitorArquivosTexto implements AutoCloseable{
 			this.coluna=1;
 			
 			recarregarBloco(0);
+			recarregarBloco(1);
 	}
 
 	private void recarregarBloco(int bloco) {
@@ -50,15 +51,22 @@ public class LeitorArquivosTexto implements AutoCloseable{
 			}
 		}
 	}
-	private void incrementarPonteiro(){
-		ponteiro++;
-		if(ponteiro== TAMANHO_BUFFER) {
-			recarregarBloco(1);
-		}else if(ponteiro==TAMANHO_BUFFER*2) {
-			recarregarBloco(0);
-			ponteiro=0;
-		}
-	}
+	  private void incrementarPonteiro() {
+	        ponteiro++;
+	 
+	        if (ponteiro == TAMANHO_BUFFER * 2) {
+	            ponteiro = 0;
+	        }
+	        if (ponteiro == TAMANHO_BUFFER) {
+	            if (inicioLexema >= TAMANHO_BUFFER) {
+	                recarregarBloco(0);
+	            }
+	        } else if (ponteiro == 0) {
+	            if (inicioLexema < TAMANHO_BUFFER) {
+	                recarregarBloco(1);
+	            }
+	        }
+	    }
 	private int lerCaracterDoBuffer(){
 		int ret= bufferDeLeitura[ponteiro];
 		incrementarPonteiro();
@@ -100,10 +108,15 @@ public class LeitorArquivosTexto implements AutoCloseable{
 		ponteiro=inicioLexema;
 		lexema.setLength(0);
 	}
-	public void confirmar() {
-		inicioLexema=ponteiro;
-		lexema.setLength(0);;
-	}
+	 public void confirmar() {
+	        inicioLexema = ponteiro;
+	        lexema.setLength(0);
+	        if (inicioLexema == TAMANHO_BUFFER) {
+	            recarregarBloco(0);
+	        } else if (inicioLexema == 0 && ponteiro == 0) {
+	            recarregarBloco(1);
+	        }
+	    }
 	public String getLexema() {
 		return lexema.toString();
 	}

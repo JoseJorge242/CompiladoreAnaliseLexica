@@ -1,5 +1,6 @@
 package AnalisadorLexico;
 
+
 public class AnalisadorLexico {
 
     private final LeitorArquivosTexto latd;
@@ -25,8 +26,13 @@ public class AnalisadorLexico {
             if (c == ':' || c == ';' || c == ',' || c == '(' || c == ')' || c == '{' || c == '}') {
                 return delimitador(c, linhaToken, colunaToken);
             }
-            if (c == '*' || c == '/' || c == '%' || c == '+' || c == '-') {
-                return operadorAritmetico(c, linhaToken, colunaToken);
+            if (c == '*' || c == '%' || c == '+' || c == '-') {
+                return operadorAritmeticoOuComentario(c, linhaToken, colunaToken);
+            }
+            if(c=='/') {
+            		Token t=	comentarioOuDivisao(c, linhaToken, colunaToken);
+            		if(t==null) continue;
+            		return t;
             }
             if (c == '<' || c == '>' || c == '=' || c == '!' || c == '&' || c == '|') {
                 return operadorRelacionalOuLogico(c, linhaToken, colunaToken);
@@ -37,14 +43,78 @@ public class AnalisadorLexico {
             if (Character.isLetter(c) || c == '_') {
                 return identificador(linhaToken, colunaToken);
             }
-            
+            if (c == '"') {
+                return literalString(linhaToken, colunaToken);
+            }
             latd.confirmar();
             return new Token(TipoToken.ERROR, Character.toString(c), linhaToken, colunaToken);
         }
                 return new Token(TipoToken.EOF, "EOF", latd.getLinha(), latd.getColuna());
     }
     
-    private Token identificador(int linha, int coluna) {
+    private Token literalString(int linha, int coluna) {
+        int c;
+        boolean fechou = false;
+        int anterior = -1;
+        while ((c = latd.lerProximoCaractere()) != -1) {
+            if ((char) c == '"' && anterior != '\\') {
+                fechou = true;
+                break;
+            }
+            anterior = c;
+        }
+        String texto = latd.getLexema();
+        latd.confirmar();
+        if (!fechou) {
+            return new Token(TipoToken.ERROR, texto, linha, coluna);
+        }
+        return new Token(TipoToken.STRING_LITERAL, texto, linha, coluna);
+    }
+
+    private Token comentarioOuDivisao(char c, int linha, int coluna) {
+        int proximo = latd.lerProximoCaractere();
+
+        if (proximo == '/') { 
+            int lido;
+            while ((lido = latd.lerProximoCaractere()) != -1) {
+                if ((char) lido == '\n') {
+                    break;
+                }
+            }
+            latd.confirmar();
+            return null; 
+        }
+
+        if (proximo == '*') {
+            int anterior = -1;
+            int ch;
+            boolean fechou = false;
+            
+            while ((ch = latd.lerProximoCaractere()) != -1) {
+                if (anterior == '*' && (char) ch == '/') {
+                    fechou = true;
+                    break;
+                }
+                anterior = ch;
+            }
+            
+            String texto = latd.getLexema();
+            latd.confirmar();
+            
+            if (!fechou) {
+                return new Token(TipoToken.ERROR, texto, linha, coluna);
+            }
+            return null;
+        }
+
+        if (proximo != -1) {
+            latd.retroceder();
+        }
+        latd.confirmar();
+        return new Token(TipoToken.DIV, "/", linha, coluna);
+    }
+
+	private Token identificador(int linha, int coluna) {
         int proximo;
         while ((proximo = latd.lerProximoCaractere()) != -1) {
             char pc = (char) proximo;
@@ -56,8 +126,8 @@ public class AnalisadorLexico {
         
         String texto = latd.getLexema();
         latd.confirmar(); 
-        
-        switch (texto) {
+ 
+        switch (texto.toLowerCase()) {
             case "if":       return new Token(TipoToken.IF, texto, linha, coluna);
             case "else":     return new Token(TipoToken.ELSE, texto, linha, coluna);
             case "while":    return new Token(TipoToken.WHILE, texto, linha, coluna);
@@ -72,6 +142,14 @@ public class AnalisadorLexico {
             case "boolean":  return new Token(TipoToken.BOOLEAN, texto, linha, coluna);
             case "true":     return new Token(TipoToken.TRUE, texto, linha, coluna);
             case "false":    return new Token(TipoToken.FALSE, texto, linha, coluna);
+            case "declarations": return new Token(TipoToken.DECLARATIONS, texto, linha, coluna);
+            case "algorithm":    return new Token(TipoToken.ALGORITHM, texto, linha, coluna);
+            case "assign":       return new Token(TipoToken.ASSIGN_KW, texto, linha, coluna);
+            case "read":         return new Token(TipoToken.READ, texto, linha, coluna);
+            case "print":        return new Token(TipoToken.PRINT, texto, linha, coluna);
+            case "then":         return new Token(TipoToken.THEN, texto, linha, coluna);
+            case "to":           return new Token(TipoToken.TO, texto, linha, coluna);
+            case "begin":        return new Token(TipoToken.BEGIN, texto, linha, coluna);
             default:         return new Token(TipoToken.IDENTIFIER, texto, linha, coluna);
         }        
     }
@@ -108,9 +186,8 @@ public class AnalisadorLexico {
         }
     }
 
-    private Token operadorAritmetico(char c, int linha, int coluna) {
+    private Token operadorAritmeticoOuComentario(char c, int linha, int coluna) {
         if (c == '*') { latd.confirmar(); return new Token(TipoToken.MULT, "*", linha, coluna); }
-        if (c == '/') { latd.confirmar(); return new Token(TipoToken.DIV, "/", linha, coluna); }
         if (c == '%') { latd.confirmar(); return new Token(TipoToken.MOD, "%", linha, coluna); }
         
         if (c == '+') {

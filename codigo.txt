@@ -1,6 +1,55 @@
-if (idade >= 18) {
-    status = "Liberado";
-    contador++;
-} else {
-    retorno = x - y;
+: DECLARATIONS
+idade : int
+salario : float
+nome : string
+ativo : boolean
+contador : int
+
+: ALGORITHM
+// ===================================================
+// 1. TESTE LÉXICO: COMENTÁRIOS E LITERAIS
+// ===================================================
+/* Este é um comentário de bloco longo
+   que o seu método comentarioOuDivisao 
+   deve ignorar com sucesso! */
+
+ASSIGN 0 TO contador
+ASSIGN "Porto Alegre" TO nome
+ASSIGN 1450.75 TO salario
+ASSIGN true TO ativo
+
+// ===================================================
+// 2. TESTE SINTÁTICO: ENTRADA E OPERADORES ARITMÉTICOS
+// ===================================================
+READ idade
+ASSIGN idade + 10 * 2 / 2 TO idade
+ASSIGN salario % 5 TO salario
+
+// ===================================================
+// 3. TESTE SINTÁTICO: CONDICIONAIS (IF / THEN / ELSE)
+// ===================================================
+IF idade >= 18 THEN
+    ASSIGN true TO ativo
+ELSE
+    ASSIGN false TO ativo
+
+// Teste de IF sem o bloco ELSE (Condicional Simples)
+IF salario <= 2000.00 THEN
+    ASSIGN 2000.00 TO salario
+
+// ===================================================
+// 4. TESTE SINTÁTICO: LAÇOS DE REPETIÇÃO (WHILE)
+// ===================================================
+// Nota: Se a sua gramática usar chaves {} para blocos, o lexer vai ler LPAREN/RPAREN perfeitamente aqui
+WHILE contador < 5 {
+    ASSIGN contador + 1 TO contador
+    PRINT contador
 }
+
+// ===================================================
+// 5. TESTE LÉXICO/SINTÁTICO: OPERADORES LÓGICOS E RELACIONAIS
+// ===================================================
+IF ativo == true && idade != 0 THEN
+    PRINT nome
+
+PRINT salario
