@@ -151,8 +151,13 @@ private int coluna;
             return incremento;}
         public Bloco getCorpo(){ 
             return corpo;}
+
+        public Object getInicializacao() {
+        
+            throw new UnsupportedOperationException("Unimplemented method 'getInicializacao'");
+        }
     }
- 
+
     public static class Retorno extends No {
         private No valor;
  

@@ -17,26 +17,19 @@ public class Token {
 		this.coluna = coluna;
 	}
  
- 
 	@Override
 	public String toString() {
 		return "Token [tipo=" + tipo + ", lexema=" + lexema + ", linha=" + linha + ", coluna=" + coluna + "]";
 	}
- 
- 
 	public TipoToken getTipo() {
 		return tipo;
 	}
- 
- 
 	public String getLexema() {
 		return lexema;
 	}
- 
 	public int getLinha() {
 		return linha;
 	}
- 
 	public int getColuna() {
 		return coluna;
 	}

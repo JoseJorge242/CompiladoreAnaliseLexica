@@ -4,7 +4,7 @@ import java.util.*;
 
 public class TabelaDeSimbolos {
 
-    private final Deque<Map<String, Simbolo>> pilha = new ArrayDeque<>();
+    private Deque<Map<String, Simbolo>> pilha = new ArrayDeque<>();
 
     public void entrarEscopo() {
         pilha.push(new LinkedHashMap<>());
