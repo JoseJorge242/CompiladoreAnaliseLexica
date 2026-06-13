@@ -1,7 +1,8 @@
 package AnalisadorLexico;
 
+ 
 public class Token {
-
+ 
 	private final TipoToken tipo;
 	private final String lexema;
 	private final int linha;
@@ -15,25 +16,28 @@ public class Token {
 		this.linha = linha;
 		this.coluna = coluna;
 	}
-
-
+ 
+ 
 	@Override
 	public String toString() {
 		return "Token [tipo=" + tipo + ", lexema=" + lexema + ", linha=" + linha + ", coluna=" + coluna + "]";
 	}
-
-
+ 
+ 
 	public TipoToken getTipo() {
 		return tipo;
 	}
-
-
+ 
+ 
 	public String getLexema() {
 		return lexema;
 	}
-
-
-	
-	
-	
+ 
+	public int getLinha() {
+		return linha;
+	}
+ 
+	public int getColuna() {
+		return coluna;
+	}
 }
