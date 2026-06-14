@@ -1,14 +1,14 @@
-package AnalisadorSemantico;
-
-import AnalisadorSintatico.No;
+package analisadorSemantico;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import analisadorSintatico.No;
+
 public class AnalisadorSemantico {
 
-    private final TabelaDeSimbolos tabela = new TabelaDeSimbolos();
-    private final List<String>     erros  = new ArrayList<>();
+    private TabelaDeSimbolos tabela = new TabelaDeSimbolos();
+    private List<String>     erros  = new ArrayList<>();
 
     public List<String> analisar(No.Programa programa) {
         tabela.entrarEscopo();
@@ -21,15 +21,15 @@ public class AnalisadorSemantico {
 
     private void analisarInstrucao(No no) {
         try {
-            if      (no instanceof No.DeclaracaoVariavel) analisarDeclaracao ((No.DeclaracaoVariavel) no);
-            else if (no instanceof No.Atribuicao)         analisarAtribuicao  ((No.Atribuicao)         no);
-            else if (no instanceof No.IncrDecr)           analisarIncrDecr    ((No.IncrDecr)           no);
-            else if (no instanceof No.Se)                 analisarSe          ((No.Se)                 no);
-            else if (no instanceof No.Enquanto)           analisarEnquanto    ((No.Enquanto)           no);
-            else if (no instanceof No.Para)               analisarPara        ((No.Para)               no);
-            else if (no instanceof No.Retorno)            analisarRetorno     ((No.Retorno)            no);
-            else if (no instanceof No.Bloco)              analisarBlocoSozinho((No.Bloco)              no);
-            else                                          inferirTipoSeguro   (no);
+            if (no instanceof No.DeclaracaoVariavel) analisarDeclaracao ((No.DeclaracaoVariavel) no);
+            else if (no instanceof No.Atribuicao) analisarAtribuicao ((No.Atribuicao) no);
+            else if (no instanceof No.IncrDecr) analisarIncrDecr ((No.IncrDecr) no);
+            else if (no instanceof No.Se) analisarSe ((No.Se)no);
+            else if (no instanceof No.Enquanto) analisarEnquanto ((No.Enquanto) no);
+            else if (no instanceof No.Para) analisarPara ((No.Para) no);
+            else if (no instanceof No.Retorno) analisarRetorno ((No.Retorno) no);
+            else if (no instanceof No.Bloco) analisarBlocoSozinho((No.Bloco) no);
+            else inferirTipoSeguro (no);
         } catch (ErroSemantico e) {
             erros.add(e.getMessage());
         }
@@ -62,7 +62,7 @@ public class AnalisadorSemantico {
         }
 
         String tipoValor = inferirTipoSeguro(n.getValor());
-        String op        = n.getOperador();
+        String op = n.getOperador();
 
         if (op.equals("+=") || op.equals("-=")) {
             if (!eNumerico(sim.getTipo())) {
@@ -132,8 +132,8 @@ public class AnalisadorSemantico {
     private void analisarPara(No.Para n) {
         tabela.entrarEscopo();
 
-        if (n.getInicializacao() != null)
-            analisarInstrucao(n.getInicializacao());
+        if (n.getInit() != null)
+    analisarInstrucao(n.getInit());
 
         if (n.getCondicao() != null) {
             String tipoCond = inferirTipoSeguro(n.getCondicao());
@@ -199,8 +199,8 @@ public class AnalisadorSemantico {
     }
 
     private String inferirBinario(No.Binario n) {
-        String L  = inferirTipoSeguro(n.getEsquerda());
-        String R  = inferirTipoSeguro(n.getDireita());
+        String L = inferirTipoSeguro(n.getEsquerda());
+        String R = inferirTipoSeguro(n.getDireita());
         String op = n.getOperador();
 
         if (op.equals("==") || op.equals("!=")
@@ -264,7 +264,7 @@ public class AnalisadorSemantico {
     }
 
     private boolean compativel(String declarado, String atual) {
-        if (declarado.equals(atual))                          return true;
+        if (declarado.equals(atual)) return true;
         if (declarado.equals("float") && atual.equals("int")) return true;
         return false;
     }

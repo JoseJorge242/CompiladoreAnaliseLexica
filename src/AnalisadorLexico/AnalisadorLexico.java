@@ -1,9 +1,9 @@
-package AnalisadorLexico;
+package analisadorLexico;
 
 
 public class AnalisadorLexico {
 
-    private final LeitorArquivosTexto latd;
+    private LeitorArquivosTexto latd;
 
     public AnalisadorLexico(LeitorArquivosTexto latd) {
         this.latd = latd;
@@ -128,29 +128,29 @@ public class AnalisadorLexico {
         latd.confirmar(); 
  
         switch (texto.toLowerCase()) {
-            case "if":       return new Token(TipoToken.IF, texto, linha, coluna);
-            case "else":     return new Token(TipoToken.ELSE, texto, linha, coluna);
-            case "while":    return new Token(TipoToken.WHILE, texto, linha, coluna);
-            case "for":      return new Token(TipoToken.FOR, texto, linha, coluna);
-            case "return":   return new Token(TipoToken.RETURN, texto, linha, coluna);
-            case "do":       return new Token(TipoToken.DO, texto, linha, coluna);
-            case "break":    return new Token(TipoToken.BREAK, texto, linha, coluna);
+            case "if": return new Token(TipoToken.IF, texto, linha, coluna);
+            case "else": return new Token(TipoToken.ELSE, texto, linha, coluna);
+            case "while": return new Token(TipoToken.WHILE, texto, linha, coluna);
+            case "for": return new Token(TipoToken.FOR, texto, linha, coluna);
+            case "return": return new Token(TipoToken.RETURN, texto, linha, coluna);
+            case "do": return new Token(TipoToken.DO, texto, linha, coluna);
+            case "break": return new Token(TipoToken.BREAK, texto, linha, coluna);
             case "continue": return new Token(TipoToken.CONTINUE, texto, linha, coluna);
-            case "int":      return new Token(TipoToken.INT, texto, linha, coluna);
-            case "float":    return new Token(TipoToken.FLOAT, texto, linha, coluna);
-            case "string":   return new Token(TipoToken.STRING, texto, linha, coluna);
-            case "boolean":  return new Token(TipoToken.BOOLEAN, texto, linha, coluna);
-            case "true":     return new Token(TipoToken.TRUE, texto, linha, coluna);
-            case "false":    return new Token(TipoToken.FALSE, texto, linha, coluna);
+            case "int": return new Token(TipoToken.INT, texto, linha, coluna);
+            case "float": return new Token(TipoToken.FLOAT, texto, linha, coluna);
+            case "string": return new Token(TipoToken.STRING, texto, linha, coluna);
+            case "boolean": return new Token(TipoToken.BOOLEAN, texto, linha, coluna);
+            case "true": return new Token(TipoToken.TRUE, texto, linha, coluna);
+            case "false": return new Token(TipoToken.FALSE, texto, linha, coluna);
             case "declarations": return new Token(TipoToken.DECLARATIONS, texto, linha, coluna);
-            case "algorithm":    return new Token(TipoToken.ALGORITHM, texto, linha, coluna);
-            case "assign":       return new Token(TipoToken.ASSIGN_KW, texto, linha, coluna);
-            case "read":         return new Token(TipoToken.READ, texto, linha, coluna);
-            case "print":        return new Token(TipoToken.PRINT, texto, linha, coluna);
-            case "then":         return new Token(TipoToken.THEN, texto, linha, coluna);
-            case "to":           return new Token(TipoToken.TO, texto, linha, coluna);
-            case "begin":        return new Token(TipoToken.BEGIN, texto, linha, coluna);
-            default:         return new Token(TipoToken.IDENTIFIER, texto, linha, coluna);
+            case "algorithm": return new Token(TipoToken.ALGORITHM, texto, linha, coluna);
+            case "assign": return new Token(TipoToken.ASSIGN_KW, texto, linha, coluna);
+            case "read": return new Token(TipoToken.READ, texto, linha, coluna);
+            case "print": return new Token(TipoToken.PRINT, texto, linha, coluna);
+            case "then": return new Token(TipoToken.THEN, texto, linha, coluna);
+            case "to": return new Token(TipoToken.TO, texto, linha, coluna);
+            case "begin": return new Token(TipoToken.BEGIN, texto, linha, coluna);
+            default: return new Token(TipoToken.IDENTIFIER, texto, linha, coluna);
         }        
     }
 
