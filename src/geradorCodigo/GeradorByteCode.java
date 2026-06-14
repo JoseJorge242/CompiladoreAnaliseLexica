@@ -78,9 +78,9 @@ public class GeradorByteCode {
                     switch (tokens[1]) {
                         case "==": programaBytecode.add(new InstrucaoVM(Opcode.CMP_EQ, null)); break;
                         case "!=": programaBytecode.add(new InstrucaoVM(Opcode.CMP_NE, null)); break;
-                        case "<":  programaBytecode.add(new InstrucaoVM(Opcode.CMP_LT, null)); break;
+                        case "<": programaBytecode.add(new InstrucaoVM(Opcode.CMP_LT, null)); break;
                         case "<=": programaBytecode.add(new InstrucaoVM(Opcode.CMP_LE, null)); break;
-                        case ">":  programaBytecode.add(new InstrucaoVM(Opcode.CMP_GT, null)); break;
+                        case ">": programaBytecode.add(new InstrucaoVM(Opcode.CMP_GT, null)); break;
                         case ">=": programaBytecode.add(new InstrucaoVM(Opcode.CMP_GE, null)); break;
                     }
                 }
@@ -120,18 +120,18 @@ public class GeradorByteCode {
                     empilharOperando(tokens[2], programaBytecode);
 
                     switch (tokens[1]) {
-                        case "+":  programaBytecode.add(new InstrucaoVM(Opcode.ADD, null)); break;
-                        case "-":  programaBytecode.add(new InstrucaoVM(Opcode.SUB, null)); break;
-                        case "*":  programaBytecode.add(new InstrucaoVM(Opcode.MUL, null)); break;
-                        case "/":  programaBytecode.add(new InstrucaoVM(Opcode.DIV, null)); break;
-                        case "%":  programaBytecode.add(new InstrucaoVM(Opcode.MOD, null)); break;
+                        case "+": programaBytecode.add(new InstrucaoVM(Opcode.ADD, null)); break;
+                        case "-": programaBytecode.add(new InstrucaoVM(Opcode.SUB, null)); break;
+                        case "*": programaBytecode.add(new InstrucaoVM(Opcode.MUL, null)); break;
+                        case "/": programaBytecode.add(new InstrucaoVM(Opcode.DIV, null)); break;
+                        case "%": programaBytecode.add(new InstrucaoVM(Opcode.MOD, null)); break;
                         case "&&": programaBytecode.add(new InstrucaoVM(Opcode.AND, null)); break;
                         case "||": programaBytecode.add(new InstrucaoVM(Opcode.OR, null)); break;
                         case "==": programaBytecode.add(new InstrucaoVM(Opcode.CMP_EQ, null)); break;
                         case "!=": programaBytecode.add(new InstrucaoVM(Opcode.CMP_NE, null)); break;
-                        case "<":  programaBytecode.add(new InstrucaoVM(Opcode.CMP_LT, null)); break;
+                        case "<": programaBytecode.add(new InstrucaoVM(Opcode.CMP_LT, null)); break;
                         case "<=": programaBytecode.add(new InstrucaoVM(Opcode.CMP_LE, null)); break;
-                        case ">":  programaBytecode.add(new InstrucaoVM(Opcode.CMP_GT, null)); break;
+                        case ">": programaBytecode.add(new InstrucaoVM(Opcode.CMP_GT, null)); break;
                         case ">=": programaBytecode.add(new InstrucaoVM(Opcode.CMP_GE, null)); break;
                     }
                 }

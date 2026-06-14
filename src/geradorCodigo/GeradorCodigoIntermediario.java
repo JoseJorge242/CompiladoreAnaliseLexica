@@ -3,7 +3,7 @@ package geradorCodigo;
 import java.util.ArrayList;
 import java.util.List;
 
-import analisadorSintatico.No;
+import AnalisadorSintatico.No;
 
 public class GeradorCodigoIntermediario {
 	

@@ -1,4 +1,4 @@
-package analisadorLexico;
+package AnalisadorLexico;
 
 public enum TipoToken {
 

@@ -1,11 +1,11 @@
-package analisadorSintatico;
+package AnalisadorSintatico;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import analisadorLexico.AnalisadorLexico;
-import analisadorLexico.TipoToken;
-import analisadorLexico.Token;
+import AnalisadorLexico.AnalisadorLexico;
+import AnalisadorLexico.TipoToken;
+import AnalisadorLexico.Token;
 
 public class Parser {
 

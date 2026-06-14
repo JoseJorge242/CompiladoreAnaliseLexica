@@ -1,4 +1,4 @@
-package analisadorLexico;
+package AnalisadorLexico;
 
 import java.io.FileNotFoundException;
 
